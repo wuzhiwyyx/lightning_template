@@ -5,6 +5,8 @@ This responsitory demonstrates the file structure of pytorch-lightning based dee
 
 Classification model is composed of two convolution layers and two fully connected layers.
 
+![pytorch-lightning](assets/images/lightning.png)
+
 ## Install
 
 ```
