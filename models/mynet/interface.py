@@ -10,7 +10,7 @@ import torch
 import pytorch_lightning as pl
 import torch.nn.functional as F
 from torch import optim
-from .models import MyNet as MyNet_
+from .mynet import MyNet as MyNet_
 
 class MyNet(pl.LightningModule):
     def __init__(self, learning_rate=1e-3, batch_size=12):
