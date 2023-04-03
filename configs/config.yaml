@@ -1,7 +1,3 @@
-# dataset path
-TRAIN_DATA: &TRAIN_DATA data
-VAL_DATA: &VAL_DATA *TRAIN_DATA
-
 MODEL_NAME: &MODEL_NAME MyNet
 DATASET_NAME: &DATASET_NAME minist
 
@@ -11,65 +7,59 @@ EXPER: &EXPER 'base'
 TRAIN:
     MODEL:
         NAME: *MODEL_NAME
-        PARAMS:
-            BATCH_SIZE: &TRAIN_BATCH 200
-            LEARNING_RATE: &LR 1.0e-4
+        BATCH_SIZE: &TRAIN_BATCH 200
+        LEARNING_RATE: &LR 1.0e-4
+        EXPER: *EXPER
     TRAINER:
         MAX_EPOCHS: 10
         PRECISION: 32
-        GPUS: -1
+        DEVICES: [0]
         ACCELERATOR: gpu
         STRATEGY: ddp # ddp_find_unused_parameters_false
-        SYNC_BATCHNORM: true
+        SYNC_BATCHNORM: false
         RELOAD_DATALOADERS_EVERY_N_EPOCHS: 10
         LOG_EVERY_N_STEPS: 15
     TRAINSET:
         NAME: *DATASET_NAME
-        DATASET:
-            ROOT: *TRAIN_DATA
-            MODE: train
-            DOWNLOAD: true
+        ROOT: data
+        MODE: train
+        DOWNLOAD: false
         LOADER:
             BATCH_SIZE: *TRAIN_BATCH
             SHUFFLE: true
             NUM_WORKERS: &TRAIN_NUM_WORKERS 8
     VALSET:
         NAME: *DATASET_NAME
-        DATASET:
-            ROOT: *VAL_DATA
-            MODE: val
-            DOWNLOAD: true
+        ROOT: data
+        MODE: val
+        DOWNLOAD: true
         LOADER:
             BATCH_SIZE: *TRAIN_BATCH
             SHUFFLE: false
             NUM_WORKERS: *TRAIN_NUM_WORKERS
-    CKPT_PATH:
+    CKPT_PATH: checkpoints/base/version_7/checkpoints/last.ckpt
     LOGGER:
         NAME: *EXPER
 
-EVAL:
+TEST:
     MODEL:
         NAME: *MODEL_NAME
-        PARAMS:
-            BATCH_SIZE: &VAL_BATCH 1
-            LEARNING_RATE: *LR
-    CKPT_PATH: checkpoints/base/version_0/checkpoints/epoch=199-step=19399.ckpt
+        BATCH_SIZE: &VAL_BATCH 1
+        LEARNING_RATE: *LR
+        EXPER: *EXPER
+    CKPT_PATH: 
     VALSET:
         NAME: *DATASET_NAME
-        DATASET:
-            ROOT: *VAL_DATA
-            MODE: val
-            DOWNLOAD: true
+        ROOT: data
+        MODE: val
+        DOWNLOAD: true
         LOADER:
             BATCH_SIZE: *VAL_BATCH
             SHUFFLE: false
             NUM_WORKERS: 0
     TRAINER:
         MAX_EPOCHS: 1
-        ENABLE_CHECKPOINTING: false
-        GPUS: [0]
+        DEVICES: [0]
         ACCELERATOR: gpu
-        LOGGER: false
-    EXPER: *EXPER
 
 

@@ -135,3 +135,6 @@ checkpoints/*
 log/
 
 *.txt
+*.ckpt
+lr_curve.jpg
+!requirements.txt

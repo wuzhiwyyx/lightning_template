@@ -7,6 +7,7 @@
  '''
 
 from yaml import Loader, load
+from copy import deepcopy
 
 class ConfigDict(dict):
     """
@@ -26,6 +27,34 @@ class ConfigDict(dict):
 
     def __setattr__(self, name, value):
         self.__setitem__(name.lower(), value)
+    
+    def to_dict(self):
+        return {k: v.to_dict() if isinstance(v, ConfigDict) else v for k, v in self.items()}
+
+    # ====================================================
+    # ----------------------------------------------------
+    # this code block is used to make ConfigDict deep copyable
+    __getattr__ = dict.get
+    __setattr__ = dict.__setitem__
+    __delattr__ = dict.__delitem__
+
+    def __deepcopy__(self, memo=None):
+        return ConfigDict(deepcopy(dict(self), memo=memo))
+    # ----------------------------------------------------
+    # ====================================================
+    
+
+    # ====================================================
+    # ----------------------------------------------------
+    # this code block is used to make ConfigDict pickable
+    def __getstate__(self): 
+        return self.__dict__
+
+    def __setstate__(self, d): 
+        self.__dict__.update(d)
+    # ----------------------------------------------------
+    # ====================================================
+
 
 
 def load_config(config_file):

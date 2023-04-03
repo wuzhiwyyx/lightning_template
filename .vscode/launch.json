@@ -33,14 +33,26 @@
             }
         },
         {
-            "name": "Eval",
+            "name": "Val",
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/scripts/main.py",
             "args" : ["--cfg", "${workspaceFolder}/configs/config.yaml", 
-                    "--mode", "eval", "--save_prediction", "--save_visualized"],
+                    "--mode", "val", "--save_pred", "--save_vis"],
             "env": {
                 "CUDA_LAUNCH_BLOCKING":"1"
+            }
+        },
+        {
+            "name": "Test",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/scripts/main.py",
+            "args" : ["--cfg", "${workspaceFolder}/configs/config.yaml", 
+                    "--mode", "test", "--save_vis"],
+            "env": {
+                "CUDA_LAUNCH_BLOCKING":"1",
+                "DISPLAY" : "localhost:10.0"
             }
         },
     ]

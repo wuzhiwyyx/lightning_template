@@ -7,24 +7,26 @@
  '''
 
 import torch
-import pytorch_lightning as pl
 import torch.nn.functional as F
 from torch import optim
+
+from ..__base__ import CustomPLBaseModel
 from .mynet import MyNet as MyNet_
 
-class MyNet(pl.LightningModule):
-    def __init__(self, learning_rate=1e-3, batch_size=12):
-        super().__init__()
+
+class MyNet(CustomPLBaseModel):
+    def __init__(self, learning_rate=1e-3, batch_size=12, **kwargs):
+        super().__init__(**kwargs)
         self.learning_rate = learning_rate
         self.batch_size = batch_size
         self.model = MyNet_()
         
     def forward(self, data, target=None):
         output = self.model(data)
-        loss = F.nll_loss(output, target, reduction='sum').item()  # sum up batch loss
+        loss = F.nll_loss(output, target, reduction='sum')  # sum up batch loss
         pred = output.argmax(dim=1, keepdim=True)  # get the index of the max log-probability
         if not target is None:
-            correct = pred.eq(target.view_as(pred)).sum().item()
+            correct = pred.eq(target.view_as(pred)).sum()
             return loss, pred, correct
         return loss, pred
     
@@ -39,7 +41,7 @@ class MyNet(pl.LightningModule):
         loss, pred, correct = self.forward(data, target)
             
         # Logging to TensorBoard by default
-        self.log('loss', loss.item(), batch_size=self.batch_size, sync_dist=True)
+        self.log_to_all({'loss': loss})
         return loss
     
     def validation_step(self, batch, batch_idx):
@@ -47,7 +49,12 @@ class MyNet(pl.LightningModule):
         loss, pred, correct = self.forward(data, target)
             
         # Logging to TensorBoard by default
-        self.log('loss', loss.item(), batch_size=self.batch_size, sync_dist=True)
+        self.log_to_all({'loss': loss})
+        return loss
+
+    def test_step(self, batch, batch_idx, dataloader_idx=0):
+        data, target = batch
+        loss, pred, correct = self.forward(data, target)
         return loss
 
     def configure_optimizers(self):

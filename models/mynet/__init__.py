@@ -1,2 +1,1 @@
-from .mynet import *
-from .utils import *
+from .interface import *

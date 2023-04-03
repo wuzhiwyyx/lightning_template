@@ -1,2 +1,1 @@
-from .minist_dataset import MINISTDataset
-from .utils import *
+from .minist_dataset import *

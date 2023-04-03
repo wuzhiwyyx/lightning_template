@@ -6,9 +6,11 @@
  # @ Description: HIBER dataset loader.
  '''
 
-from torch.utils import data
 import torch
-from torchvision import datasets
+from torch.utils import data
+from torch.utils.data import DataLoader
+from torchvision import datasets, transforms
+
 
 class MINISTDataset(data.Dataset):
     """Example MINIST dataset definition."""
@@ -21,3 +23,22 @@ class MINISTDataset(data.Dataset):
 
     def __getitem__(self, index):
         return self.data[index]
+
+
+def load_minist_dataset(loader, **kwargs):
+    """Example of load minist dataset from file
+
+    Args:
+        config (dict): Dict object containing dataset initial parameters and dataloader initial parameters.
+
+    Returns:
+        dataset (torch.utils.data.Dataset): Dataset object.
+        loader (torch.utils.data.DataLoader): DataLoader object
+    """
+    transform = transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize((0.1307,), (0.3081,))
+        ])
+    dataset = MINISTDataset(**kwargs, transform=transform)
+    loader = DataLoader(dataset, **loader, drop_last=True)
+    return dataset, loader
