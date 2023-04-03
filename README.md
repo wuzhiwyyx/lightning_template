@@ -10,7 +10,7 @@ Classification model is composed of two convolution layers and two fully connect
 ## Install
 
 ```
-conda env create -f environment.yaml
+pip install torch==1.12.1+cu113 torchvision==0.13.1+cu113 --extra-index-url https://download.pytorch.org/whl/cu113
 pip install -r requirements.txt
 ```
 
@@ -20,13 +20,19 @@ pip install -r requirements.txt
 ### Training
 
 ```shell
-python scrips/main.py
+python scrips/main.py --cfg configs/config.yaml
 ```
 
-### Evaluation
+### Validation
 
 ```shell
-python scripts/main.py --save_vis --save_pred
+python scripts/main.py --cfg configs/config.yaml --mode val --save_vis --save_pred
+```
+
+### Test
+
+```shell
+python scripts/main.py --cfg configs/config.yaml --mode test --save_vis --save_pred
 ```
 
 ## Citation
