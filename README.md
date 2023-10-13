@@ -26,13 +26,13 @@ python scrips/main.py --cfg configs/config.yaml
 ### Validation
 
 ```shell
-python scripts/main.py --cfg configs/config.yaml --mode val --save_vis --save_pred
+python scripts/main.py --cfg configs/config.yaml --mode val --vis --save_pred
 ```
 
 ### Test
 
 ```shell
-python scripts/main.py --cfg configs/config.yaml --mode test --save_vis --save_pred
+python scripts/main.py --cfg configs/config.yaml --mode test --vis --save_pred
 ```
 
 ## Citation

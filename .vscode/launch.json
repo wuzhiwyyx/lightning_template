@@ -16,7 +16,7 @@
             "name": "Debug",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/scripts/debug.py",
+            "program": "${workspaceFolder}/debug.py",
             "args" : ["--cfg", "${workspaceFolder}/configs/config.yaml"],
             "env": {
                 "CUDA_LAUNCH_BLOCKING":"1"
@@ -26,7 +26,7 @@
             "name": "Train",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/scripts/main.py",
+            "program": "${workspaceFolder}/main.py",
             "args" : ["--cfg", "${workspaceFolder}/configs/config.yaml"],
             "env": {
                 "CUDA_LAUNCH_BLOCKING":"1"
@@ -36,9 +36,9 @@
             "name": "Val",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/scripts/main.py",
+            "program": "${workspaceFolder}/main.py",
             "args" : ["--cfg", "${workspaceFolder}/configs/config.yaml", 
-                    "--mode", "val", "--save_pred", "--save_vis"],
+                    "--mode", "val", "--save_pred", "--vis"],
             "env": {
                 "CUDA_LAUNCH_BLOCKING":"1"
             }
@@ -47,9 +47,9 @@
             "name": "Test",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/scripts/main.py",
+            "program": "${workspaceFolder}/main.py",
             "args" : ["--cfg", "${workspaceFolder}/configs/config.yaml", 
-                    "--mode", "test", "--save_vis"],
+                    "--mode", "test", "--vis"],
             "env": {
                 "CUDA_LAUNCH_BLOCKING":"1",
                 "DISPLAY" : "localhost:10.0"

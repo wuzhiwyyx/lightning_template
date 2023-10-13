@@ -60,4 +60,24 @@ class ConfigDict(dict):
 def load_config(config_file):
     with open(config_file, 'r') as f:
         cfgs = ConfigDict(load(f, Loader=Loader))
+
+    # manually update config
+    if 'model' in cfgs and 'dataset' in cfgs:
+        cfgs.train.model = cfgs.model.update(cfgs.train.model)
+        cfgs.train.model = cfgs.model
+
+        dataset = deepcopy(cfgs.dataset)
+        dataset.update(cfgs.train.trainset)
+        cfgs.train.trainset = dataset
+
+        dataset = deepcopy(cfgs.dataset)
+        dataset.update(cfgs.train.valset)
+        cfgs.train.valset = dataset
+
+        cfgs.model.update(cfgs.test.model)
+        cfgs.test.model = cfgs.model
+
+        dataset = deepcopy(cfgs.dataset)
+        dataset.update(cfgs.test.dataset)
+        cfgs.test.dataset = dataset
     return cfgs

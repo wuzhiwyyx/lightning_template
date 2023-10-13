@@ -22,7 +22,7 @@ class MyNet(nn.Module):
         self.fc1 = nn.Linear(9216, 128)
         self.fc2 = nn.Linear(128, 10)
 
-    def forward(self, x):
+    def forward(self, x, target=None):
         x = self.conv1(x)
         x = F.relu(x)
         x = self.conv2(x)
@@ -35,4 +35,10 @@ class MyNet(nn.Module):
         x = self.dropout2(x)
         x = self.fc2(x)
         output = F.log_softmax(x, dim=1)
-        return output
+
+        loss = F.nll_loss(output, target, reduction='sum')  # sum up batch loss
+        pred = output.argmax(dim=1, keepdim=True)  # get the index of the max log-probability
+        if not target is None:
+            correct = pred.eq(target.view_as(pred)).sum()
+            return loss, pred, correct
+        return loss, pred, None

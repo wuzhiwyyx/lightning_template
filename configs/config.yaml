@@ -4,12 +4,27 @@ DATASET_NAME: &DATASET_NAME minist
 # experiment name or current model name
 EXPER: &EXPER 'base'
 
+DATASET:
+    NAME: *DATASET_NAME
+    ROOT: data
+    MODE: train
+    DOWNLOAD: true
+    LOADER:
+        BATCH_SIZE: &TRAIN_BATCH 200
+        SHUFFLE: true
+        NUM_WORKERS: &TRAIN_NUM_WORKERS 8
+
+MODEL:
+    NAME: *MODEL_NAME
+    EXPER: *EXPER
+    OPTIM: &OPTIM adam
+    OUT: *EXPER
+    SCHED: steplr
+
 TRAIN:
     MODEL:
-        NAME: *MODEL_NAME
-        BATCH_SIZE: &TRAIN_BATCH 200
+        BATCH_SIZE: *TRAIN_BATCH
         LEARNING_RATE: &LR 1.0e-4
-        EXPER: *EXPER
     TRAINER:
         MAX_EPOCHS: 10
         PRECISION: 32
@@ -20,46 +35,34 @@ TRAIN:
         RELOAD_DATALOADERS_EVERY_N_EPOCHS: 10
         LOG_EVERY_N_STEPS: 15
     TRAINSET:
-        NAME: *DATASET_NAME
-        ROOT: data
-        MODE: train
-        DOWNLOAD: false
         LOADER:
             BATCH_SIZE: *TRAIN_BATCH
             SHUFFLE: true
-            NUM_WORKERS: &TRAIN_NUM_WORKERS 8
+            NUM_WORKERS: *TRAIN_NUM_WORKERS
     VALSET:
-        NAME: *DATASET_NAME
-        ROOT: data
         MODE: val
-        DOWNLOAD: true
         LOADER:
             BATCH_SIZE: *TRAIN_BATCH
             SHUFFLE: false
             NUM_WORKERS: *TRAIN_NUM_WORKERS
-    CKPT_PATH: checkpoints/base/version_7/checkpoints/last.ckpt
-    LOGGER:
-        NAME: *EXPER
+    CKPT_PATH:
 
 TEST:
     MODEL:
-        NAME: *MODEL_NAME
         BATCH_SIZE: &VAL_BATCH 1
         LEARNING_RATE: *LR
-        EXPER: *EXPER
     CKPT_PATH: 
-    VALSET:
-        NAME: *DATASET_NAME
-        ROOT: data
+    DATASET:
         MODE: val
-        DOWNLOAD: true
         LOADER:
             BATCH_SIZE: *VAL_BATCH
             SHUFFLE: false
             NUM_WORKERS: 0
     TRAINER:
         MAX_EPOCHS: 1
+        ENABLE_CHECKPOINTING: false
         DEVICES: [0]
         ACCELERATOR: gpu
+        LOGGER: false
 
 
