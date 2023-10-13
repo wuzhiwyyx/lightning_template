@@ -20,19 +20,19 @@ pip install -r requirements.txt
 ### Training
 
 ```shell
-python scrips/main.py --cfg configs/config.yaml
+python main.py --cfg configs/config.yaml
 ```
 
 ### Validation
 
 ```shell
-python scripts/main.py --cfg configs/config.yaml --mode val --vis --save_pred
+python main.py --cfg configs/config.yaml --mode val --vis --save_pred
 ```
 
 ### Test
 
 ```shell
-python scripts/main.py --cfg configs/config.yaml --mode test --vis --save_pred
+python main.py --cfg configs/config.yaml --mode test --vis --save_pred
 ```
 
 ## Citation
