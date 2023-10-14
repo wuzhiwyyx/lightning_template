@@ -63,8 +63,9 @@ def load_config(config_file):
 
     # manually update config
     if 'model' in cfgs and 'dataset' in cfgs:
-        cfgs.train.model = cfgs.model.update(cfgs.train.model)
-        cfgs.train.model = cfgs.model
+        model = deepcopy(cfgs.model)
+        model.update(cfgs.train.model)
+        cfgs.train.model = model
 
         dataset = deepcopy(cfgs.dataset)
         dataset.update(cfgs.train.trainset)
@@ -74,8 +75,9 @@ def load_config(config_file):
         dataset.update(cfgs.train.valset)
         cfgs.train.valset = dataset
 
-        cfgs.model.update(cfgs.test.model)
-        cfgs.test.model = cfgs.model
+        model = deepcopy(cfgs.model)
+        model.update(cfgs.test.model)
+        cfgs.test.model = model
 
         dataset = deepcopy(cfgs.dataset)
         dataset.update(cfgs.test.dataset)
