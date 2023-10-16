@@ -20,7 +20,10 @@ class ConfigDict(dict):
                 self.pop(k)
                 self[k.lower()] = v
             if isinstance(v, dict) and not isinstance(v, ConfigDict):
-                self[k.lower()] = ConfigDict(v)
+                if not k.islower() and k.isupper():
+                    self[k.lower()] = ConfigDict(v)
+                else:
+                    self[k] = ConfigDict(v)
 
     def __getattr__(self, name):
         return self.get(name.lower())
@@ -60,26 +63,4 @@ class ConfigDict(dict):
 def load_config(config_file):
     with open(config_file, 'r') as f:
         cfgs = ConfigDict(load(f, Loader=Loader))
-
-    # manually update config
-    if 'model' in cfgs and 'dataset' in cfgs:
-        model = deepcopy(cfgs.model)
-        model.update(cfgs.train.model)
-        cfgs.train.model = model
-
-        dataset = deepcopy(cfgs.dataset)
-        dataset.update(cfgs.train.trainset)
-        cfgs.train.trainset = dataset
-
-        dataset = deepcopy(cfgs.dataset)
-        dataset.update(cfgs.train.valset)
-        cfgs.train.valset = dataset
-
-        model = deepcopy(cfgs.model)
-        model.update(cfgs.test.model)
-        cfgs.test.model = model
-
-        dataset = deepcopy(cfgs.dataset)
-        dataset.update(cfgs.test.dataset)
-        cfgs.test.dataset = dataset
     return cfgs

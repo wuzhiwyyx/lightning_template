@@ -12,18 +12,15 @@ DATASET:
     LOADER:
         BATCH_SIZE: &TRAIN_BATCH 200
         SHUFFLE: true
-        NUM_WORKERS: &TRAIN_NUM_WORKERS 8
+        NUM_WORKERS: &TRAIN_NUM_WORKERS 0
 
 MODEL:
     NAME: *MODEL_NAME
-    EXPER: *EXPER
     OPTIM: &OPTIM adam
-    OUT: *EXPER
     SCHED: steplr
 
 TRAIN:
     MODEL:
-        BATCH_SIZE: *TRAIN_BATCH
         LEARNING_RATE: &LR 1.0e-4
     TRAINER:
         MAX_EPOCHS: 10
@@ -34,6 +31,10 @@ TRAIN:
         SYNC_BATCHNORM: false
         RELOAD_DATALOADERS_EVERY_N_EPOCHS: 10
         LOG_EVERY_N_STEPS: 15
+        CALLBACKS:
+            TxtLoggerCallback:
+                NAME: *EXPER
+                BATCH_SIZE: *TRAIN_BATCH
     TRAINSET:
         LOADER:
             BATCH_SIZE: *TRAIN_BATCH
@@ -45,7 +46,7 @@ TRAIN:
             BATCH_SIZE: *TRAIN_BATCH
             SHUFFLE: false
             NUM_WORKERS: *TRAIN_NUM_WORKERS
-    CKPT_PATH:
+    CKPT_PATH: 
 
 TEST:
     MODEL:

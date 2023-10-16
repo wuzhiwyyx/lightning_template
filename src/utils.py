@@ -6,92 +6,56 @@
  # @ Description: Collection of some useful functions for running the whole project.
  '''
 
-import time
-from collections import namedtuple
+import pprint
 from copy import deepcopy
-from pathlib import Path
 
-import matplotlib.pyplot as plt
-from lightning.pytorch.callbacks import LearningRateMonitor, ModelCheckpoint
-from lightning.pytorch.callbacks import ModelSummary as SummaryCallback
-from lightning.pytorch.callbacks import RichModelSummary as RichSummaryCallback
+from lightning.pytorch import Trainer
+from lightning.pytorch.callbacks import *
+from lightning.pytorch.loggers import TensorBoardLogger
 from lightning.pytorch.tuner import Tuner
-from lightning.pytorch.utilities.model_summary import ModelSummary as Summary
 
-from .datasets import load_minist_dataset
+from .datasets import build_minist_dataset
 from .interface import PLModule
-from .mynet import MyNet
-from .tools import (ConfigDict, StepCountCallback, build_logger, load_config,
-                    setup_logger_ddp)
+from .tools import *
 
 
-def build_plmodule(**kwargs):
-    logger = kwargs.get('txtlogger', None)
-    plmodule = PLModule(**kwargs)
-    if not logger is None:
-        log_model_info(logger, plmodule, Summary(plmodule, max_depth=3))
-    return plmodule
-
-# def build_model(name, logger=None, **kwargs):
-#     """Build model object
-
-#     Args:
-#         cfg (dict): Model name and initialization parameters.
-
-#     Returns:
-#         LightningModule: Pytorch-lightning modules.
-#     """
-#     models = {
-#         'mynet' : MyNet
-#     }
-#     model = models[name.lower()](**ConfigDict(kwargs).to_dict())
-#     # Log model structure and parameter summary
-#     # logger = kwargs.get('txtlogger', None)
-#     # if not logger is None:
-#     #     log_model_info(logger, model, Summary(model, max_depth=3))
-#     return model
-    
-def load_dataset(name, **kwargs):
+def build_dataset(name, **kwargs):
     _ = {
-        'minist' : load_minist_dataset,
+        'minist' : build_minist_dataset,
     }
     return _[name.lower()](**kwargs)
 
-def log_model_info(logger, model_sturcture, paramter_info):
-    logger.info('=====================================================')
-    logger.info(f'Model Structure:\n{model_sturcture}')
-    logger.info('=====================================================')
-    logger.info(f'Parameter Summary:\n{paramter_info}')
-    logger.info('=====================================================')
+def deep_update(raw, new):
+    if new is None:
+        return raw
+    foo = deepcopy(raw)
+    update_keys(foo, new)
+    insert_keys(foo, new)
+    return foo
 
-def build_callbacks(cb_names=['lr_monitor', 'ckpt_callback', 'summary']):
-    if not isinstance(cb_names, list):
-        cb_names = [cb_names]
-    cb_names.append('step_cnt')
-    cbs = {
-        'lr_monitor' : LearningRateMonitor(logging_interval='step'),
-        'ckpt_callback' : ModelCheckpoint(
-            monitor='val/loss', save_top_k=5, 
-            filename='e{epoch}-s{step}-loss{val/loss:.4f}',
-            auto_insert_metric_name=False,
-            save_last=True, verbose=True
-        ),
-        'summary' : SummaryCallback(max_depth=3),
-        'rich_summary' : RichSummaryCallback(max_depth=3),
-        'step_cnt' : StepCountCallback(),
-    }
-    return [cbs[x] for x in cb_names]
+def update_keys(raw, new):
+    for key in raw:
+        if key not in new.keys():
+            continue
+        if isinstance(raw[key], dict) and isinstance(new[key], dict):
+            raw[key] = deep_update(raw[key], new[key])
+        else:
+            raw[key] = new[key]
 
-def purify_cfg(config, keys_to_filter=[]):
-    cfg = deepcopy(config)
-    for ktf in keys_to_filter:
-        cfg.pop(ktf, None)
-    return cfg
+def insert_keys(raw, new):
+    update_dict = {}
+    for key in new:
+        if key not in raw.keys():
+            update_dict[key] = new[key]
+    raw.update(update_dict)
 
-def find_best_lr(trainer, model, train_loader, val_loader, logger, show=True, update_attr=False):
+
+def find_best_lr(trainer, model, logger, train_dataloaders, val_dataloaders, show=True, update_attr=False):
+    import matplotlib.pyplot as plt
+    logger.info('Seaching for best learning rate ...')
     tuner = Tuner(trainer)
-    lr_finder = tuner.lr_find(model, train_dataloaders=train_loader, 
-                                val_dataloaders=val_loader, update_attr=update_attr)
+    lr_finder = tuner.lr_find(model, train_dataloaders=train_dataloaders, 
+                                val_dataloaders=val_dataloaders, update_attr=update_attr)
 
     fig = lr_finder.plot(suggest=True)
     fig.savefig('lr_curve.jpg')
@@ -105,3 +69,87 @@ def find_best_lr(trainer, model, train_loader, val_loader, logger, show=True, up
     else:
         logger.info('Learning rate curve has been saved in lr_curve.jpg')
     return lr_finder
+
+class ConfigParser():
+    CALLBACKS = {
+        'LearningRateMonitor' : {'logging_interval':'step'},
+        'CKPTCallback' : {},
+        'ModelSummary' : {'max_depth':3},
+        # 'TxtLoggerCallback' : {},
+    }
+
+    def __init__(self, args) -> None:
+        config = self.load_config(args.cfg)
+        self.config = config
+        self.args = args
+        self.mode = args.mode
+        self.logger = build_logger(config.exper, args.mode, model_name=config.model_name)
+        
+        self.logger.info(args)
+        self.logger.info(f'Configuration:\n{pprint.pformat(config)}')
+    
+    def load_config(self, cfg):
+        cfgs = load_config(cfg)
+        
+        cfgs.train.model = deep_update(cfgs.model, cfgs.train.model)
+        cfgs.train.trainset = deep_update(cfgs.dataset, cfgs.train.trainset)
+        cfgs.train.valset = deep_update(cfgs.dataset, cfgs.train.valset)
+        cfgs.test.model = deep_update(cfgs.model, cfgs.test.model)
+        cfgs.test.dataset = deep_update(cfgs.dataset, cfgs.test.dataset)
+        return cfgs
+    
+    def get_logger(self):
+        return self.logger
+
+    @property
+    def ckpt(self):
+        ckpt = self.cfg.ckpt_path if hasattr(self.cfg, 'ckpt_path') else None
+        return ckpt
+    
+    @property
+    def cfg(self):
+        return eval(f'self.config.{self.mode}')
+
+    def build_plmodule(self):
+        self.logger.info('Building model.')
+        return PLModule(**self.cfg.model)
+
+    def build_dataloader(self):
+        self.logger.info(f'Building {self.mode.capitalize()} dataset.')
+        if self.mode == 'train':
+            trainset, train_loader = build_dataset(**self.cfg.trainset)
+            valset, val_loader = build_dataset(**self.cfg.valset)
+            loaders = {
+                'train_dataloaders': train_loader,
+                'val_dataloaders': val_loader,
+            }
+        else:
+            dataset, data_loader = build_dataset(**self.cfg.dataset)
+            loaders = {
+                'dataloaders': data_loader,
+            }
+        return loaders
+
+    def build_tb_logger(self):
+        self.logger.info('Building Tensorboard logger.')
+        return TensorBoardLogger('checkpoints', self.config.exper)
+
+    def build_trainer(self):
+        self.logger.info(f'Building {self.mode.capitalize()} phase Trainer.')
+        cfg = deepcopy(self.cfg.trainer)
+        for k in ['logger']:
+            cfg.pop(k, None)
+        cfg['callbacks'] = self.build_callbacks(cfg.get('callbacks', {}))
+        if self.mode == 'train':
+            cfg['logger'] = self.build_tb_logger()
+            trainer = Trainer(**cfg)
+        else:
+            cfg['enable_checkpointing'] = False
+            cfg['logger'] = False
+            trainer = Trainer(**cfg)
+        return trainer
+
+    def build_callbacks(self, cb_params):
+        cb_params = deep_update(self.CALLBACKS, cb_params)
+        cbs = [eval(k)(**v) for k, v in cb_params.items()]
+        return cbs

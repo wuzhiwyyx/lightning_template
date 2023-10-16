@@ -16,10 +16,10 @@ from logging import Handler, StreamHandler, getLevelName
 from pathlib import Path
 
 
-def build_logger(config, phase='train', model_name='Model'):
-    log_dir = Path('log') / config.exper
+def build_logger(exper, phase='train', model_name='Model'):
+    log_dir = Path('log') / exper
     log_dir.mkdir(parents=True, exist_ok=True)
-    logger = setup_logger_ddp(config.exper, log_dir, time.strftime('%Y-%m-%d-%H-%M'), 0, model_name, phase)
+    logger = setup_logger_ddp(exper, log_dir, time.strftime('%Y-%m-%d-%H-%M'), 0, model_name, phase)
     return logger
 
 def get_logger(name, save_dir, verbosity=1, filename="log.txt"):

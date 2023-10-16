@@ -25,7 +25,7 @@ class MINISTDataset(data.Dataset):
         return self.data[index]
 
 
-def load_minist_dataset(loader, **kwargs):
+def build_minist_dataset(loader, **kwargs):
     """Example of load minist dataset from file
 
     Args:

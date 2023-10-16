@@ -37,8 +37,11 @@ class MyNet(nn.Module):
         output = F.log_softmax(x, dim=1)
 
         loss = F.nll_loss(output, target, reduction='sum')  # sum up batch loss
+
         pred = output.argmax(dim=1, keepdim=True)  # get the index of the max log-probability
+        
+        correct = None
         if not target is None:
             correct = pred.eq(target.view_as(pred)).sum()
-            return loss, pred, correct
-        return loss, pred, None
+            
+        return {'loss': loss}, pred, correct
