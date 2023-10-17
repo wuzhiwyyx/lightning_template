@@ -73,7 +73,7 @@ def find_best_lr(trainer, model, logger, train_dataloaders, val_dataloaders, sho
 class ConfigParser():
     CALLBACKS = {
         'LearningRateMonitor' : {'logging_interval':'step'},
-        'CKPTCallback' : {},
+        # 'CKPTCallback' : {},
         'ModelSummary' : {'max_depth':3},
         # 'TxtLoggerCallback' : {},
     }
@@ -83,7 +83,9 @@ class ConfigParser():
         self.config = config
         self.args = args
         self.mode = args.mode
-        self.logger = build_logger(config.exper, args.mode, model_name=config.model_name)
+        self.tb_logger = TensorBoardLogger('checkpoints', self.config.exper)
+        self.logger = build_logger(config.exper, args.mode, logger_name=config.model_name,
+                                    root='checkpoints', v_num=self.log_version)
         
         self.logger.info(args)
         self.logger.info(f'Configuration:\n{pprint.pformat(config)}')
@@ -100,6 +102,14 @@ class ConfigParser():
     
     def get_logger(self):
         return self.logger
+
+    @property
+    def log_version(self):
+        if not hasattr(self, 'tb_logger'):
+            return None
+        v = self.tb_logger.version
+        v = v if v == 0 else (v if self.mode == 'train' else v-1)
+        return f'version_{v}'
 
     @property
     def ckpt(self):
@@ -130,10 +140,6 @@ class ConfigParser():
             }
         return loaders
 
-    def build_tb_logger(self):
-        self.logger.info('Building Tensorboard logger.')
-        return TensorBoardLogger('checkpoints', self.config.exper)
-
     def build_trainer(self):
         self.logger.info(f'Building {self.mode.capitalize()} phase Trainer.')
         cfg = deepcopy(self.cfg.trainer)
@@ -141,7 +147,7 @@ class ConfigParser():
             cfg.pop(k, None)
         cfg['callbacks'] = self.build_callbacks(cfg.get('callbacks', {}))
         if self.mode == 'train':
-            cfg['logger'] = self.build_tb_logger()
+            cfg['logger'] = self.tb_logger
             trainer = Trainer(**cfg)
         else:
             cfg['enable_checkpointing'] = False
@@ -150,6 +156,8 @@ class ConfigParser():
         return trainer
 
     def build_callbacks(self, cb_params):
+        for k, v in cb_params.items():
+            cb_params[k] = {} if v is None else v
         cb_params = deep_update(self.CALLBACKS, cb_params)
         cbs = [eval(k)(**v) for k, v in cb_params.items()]
         return cbs

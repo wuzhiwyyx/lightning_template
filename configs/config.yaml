@@ -33,8 +33,9 @@ TRAIN:
         LOG_EVERY_N_STEPS: 15
         CALLBACKS:
             TxtLoggerCallback:
-                NAME: *EXPER
+                NAME: *MODEL_NAME
                 BATCH_SIZE: *TRAIN_BATCH
+            CKPTCallback:
     TRAINSET:
         LOADER:
             BATCH_SIZE: *TRAIN_BATCH
@@ -46,24 +47,24 @@ TRAIN:
             BATCH_SIZE: *TRAIN_BATCH
             SHUFFLE: false
             NUM_WORKERS: *TRAIN_NUM_WORKERS
-    CKPT_PATH: 
+    CKPT_PATH: checkpoints/base/version_0/checkpoints/e4-s1500-loss9.9744.ckpt
 
 TEST:
     MODEL:
-        BATCH_SIZE: &VAL_BATCH 1
         LEARNING_RATE: *LR
-    CKPT_PATH: 
+    CKPT_PATH: checkpoints/base/version_0/checkpoints/e4-s1500-loss9.9744.ckpt
     DATASET:
         MODE: val
         LOADER:
-            BATCH_SIZE: *VAL_BATCH
+            BATCH_SIZE: &VAL_BATCH 1
             SHUFFLE: false
             NUM_WORKERS: 0
     TRAINER:
         MAX_EPOCHS: 1
-        ENABLE_CHECKPOINTING: false
         DEVICES: [0]
         ACCELERATOR: gpu
-        LOGGER: false
-
+        CALLBACKS:
+            TxtLoggerCallback:
+                NAME: *MODEL_NAME
+                BATCH_SIZE: *VAL_BATCH
 

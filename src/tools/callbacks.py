@@ -30,11 +30,16 @@ class TxtLoggerCallback(Callback):
         logger = self.txt_logger
         from lightning.pytorch.utilities.model_summary import ModelSummary
         paramter_info = ModelSummary(pl_module, max_depth=self.summary_depth)
-        logger.info('=====================================================')
+        logger.info('====================================================='*3)
         logger.info(f'Model Structure:\n{pl_module}')
-        logger.info('=====================================================')
+        logger.info('====================================================='*3)
         logger.info(f'Parameter Summary:\n{paramter_info}')
-        logger.info('=====================================================')
+        logger.info('====================================================='*3)
+        if trainer.logger is None:
+            logger.info('Tensorboard logger is disabled.')
+        else:
+            logger.info(f'Tensorboard logger is enabled with log folder {trainer.logger.log_dir}.')
+        logger.info('====================================================='*3)
 
 
     def prefix_keys(self, x: dict, prefix: str='', ) -> dict:
@@ -112,6 +117,12 @@ class TxtLoggerCallback(Callback):
     def on_validation_batch_end(self, trainer: "pl.Trainer", pl_module: "pl.LightningModule", outputs: Optional[STEP_OUTPUT], batch: Any, batch_idx: int, dataloader_idx: int = 0) -> None:
         prefix = self.current_stage(trainer)
         self.log_to_all(outputs[0], prefix)
+
+    def on_train_epoch_start(self, trainer: "pl.Trainer", pl_module: "pl.LightningModule") -> None:
+        self.txt_logger.info(f'Train epoch {pl_module.current_epoch + 1} started.')
+
+    def on_train_epoch_end(self, trainer: "pl.Trainer", pl_module: "pl.LightningModule") -> None:
+        self.txt_logger.info(f'Train epoch {pl_module.current_epoch + 1} finished.')
     
     def on_fit_start(self, trainer: "pl.Trainer", pl_module: "pl.LightningModule") -> None:
         self.txt_logger.info('Fit started.')

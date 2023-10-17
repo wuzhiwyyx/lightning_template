@@ -16,10 +16,11 @@ from logging import Handler, StreamHandler, getLevelName
 from pathlib import Path
 
 
-def build_logger(exper, phase='train', model_name='Model'):
-    log_dir = Path('log') / exper
+def build_logger(exper, phase='train', logger_name='Model', root='log', v_num=''):
+    log_dir = Path(root) / exper / v_num
     log_dir.mkdir(parents=True, exist_ok=True)
-    logger = setup_logger_ddp(exper, log_dir, time.strftime('%Y-%m-%d-%H-%M'), 0, model_name, phase)
+    filename = log_dir / f"{time.strftime('%Y-%m-%d-%H-%M')}_{phase}.log"
+    logger = setup_logger_ddp(logger_name, str(filename))
     return logger
 
 def get_logger(name, save_dir, verbosity=1, filename="log.txt"):
@@ -138,8 +139,8 @@ def setup_logger(name, save_dir, distributed_rank, filename="log.txt"):
 
     return logger
 
-def setup_logger_ddp(exp_name, save_dir, time_str, distributed_rank, model_name, phase='train'):
-    logger = logging.getLogger(model_name)
+def setup_logger_ddp(name, log_file, distributed_rank=0):
+    logger = logging.getLogger(name)
     logger.setLevel(logging.DEBUG)
     # don't log results for the non-master process
     if distributed_rank > 0:
@@ -147,9 +148,8 @@ def setup_logger_ddp(exp_name, save_dir, time_str, distributed_rank, model_name,
     
     formatter = logging.Formatter("%(asctime)s %(name)s %(levelname)s: %(message)s")
     
-    if save_dir:
-        log_file = '{}_{}.log'.format(time_str, phase)
-        fh = FileHandler(os.path.join(save_dir, log_file))
+    if not log_file is None and log_file.strip() != '':
+        fh = FileHandler(log_file)
         fh.setLevel(logging.DEBUG)
         fh.setFormatter(formatter)
         logging.Formatter.converter = beijing

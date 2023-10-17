@@ -39,7 +39,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/main.py",
             "args" : ["--cfg", "${workspaceFolder}/configs/config.yaml", 
-                    "--mode", "val", "--save_pred", "--vis"],
+                    "--mode", "val", "--vis"],
             "env": {
                 "CUDA_LAUNCH_BLOCKING":"1"
             }

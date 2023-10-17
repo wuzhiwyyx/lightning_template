@@ -29,8 +29,6 @@ if __name__ == '__main__':
     cparser = ConfigParser(args)
     
     seed_everything(1)
-
-    logger = cparser.get_logger()
     
     model = cparser.build_plmodule()
     data_loader = cparser.build_dataloader()
