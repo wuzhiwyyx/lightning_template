@@ -6,12 +6,9 @@
  # @ Description: Train and evaluation script.
  '''
 import argparse
-import pprint
 
 import torch
-from lightning.pytorch import Trainer, seed_everything
-from lightning.pytorch.loggers import TensorBoardLogger
-from lightning.pytorch.profilers import AdvancedProfiler
+from lightning.pytorch import seed_everything
 
 from src import ConfigParser, find_best_lr
 
