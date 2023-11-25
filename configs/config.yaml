@@ -32,10 +32,10 @@ TRAIN:
         RELOAD_DATALOADERS_EVERY_N_EPOCHS: 10
         LOG_EVERY_N_STEPS: 15
         CALLBACKS:
-            TxtLoggerCallback:
+            TxtLogger:
                 NAME: *MODEL_NAME
                 BATCH_SIZE: *TRAIN_BATCH
-            CKPTCallback:
+            CKPTFormatter:
     TRAINSET:
         LOADER:
             BATCH_SIZE: *TRAIN_BATCH
@@ -64,7 +64,7 @@ TEST:
         DEVICES: [0]
         ACCELERATOR: gpu
         CALLBACKS:
-            TxtLoggerCallback:
+            TxtLogger:
                 NAME: *MODEL_NAME
                 BATCH_SIZE: *VAL_BATCH
 

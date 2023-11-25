@@ -17,6 +17,7 @@ from lightning.pytorch.tuner import Tuner
 from .datasets import build_minist_dataset
 from .interface import PLModule
 from .tools import *
+from .tools.callbacks import *
 
 
 def build_dataset(name, **kwargs):
@@ -73,9 +74,9 @@ def find_best_lr(trainer, model, logger, train_dataloaders, val_dataloaders, sho
 class ConfigParser():
     CALLBACKS = {
         'LearningRateMonitor' : {'logging_interval':'step'},
-        # 'CKPTCallback' : {},
+        # 'CKPTFormatter' : {},
         'ModelSummary' : {'max_depth':3},
-        # 'TxtLoggerCallback' : {},
+        # 'TxtLogger' : {},
     }
 
     def __init__(self, args) -> None:
