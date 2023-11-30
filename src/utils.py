@@ -131,8 +131,8 @@ def find_best_lr(trainer, model, logger, train_dataloaders, val_dataloaders, sho
                                 val_dataloaders=val_dataloaders, update_attr=update_attr)
 
     fig = lr_finder.plot(suggest=True)
-    fig.savefig('lr_curve.jpg')
     fig.suptitle(f'Suggested lr: {lr_finder.suggestion():.4f}', fontsize=12)
+    fig.savefig('lr_curve.jpg')
     if show:
         fig.show()
         plt.pause(10)
