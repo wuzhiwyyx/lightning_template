@@ -39,7 +39,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/main.py",
             "args" : ["--cfg", "${workspaceFolder}/configs/config.yaml", 
-                    "--mode", "val", "--vis"],
+                    "--mode", "val"],
             "env": {
                 "CUDA_LAUNCH_BLOCKING":"1"
             }
@@ -50,7 +50,19 @@
             "request": "launch",
             "program": "${workspaceFolder}/main.py",
             "args" : ["--cfg", "${workspaceFolder}/configs/config.yaml", 
-                    "--mode", "test", "--vis"],
+                    "--mode", "test"],
+            "env": {
+                "CUDA_LAUNCH_BLOCKING":"1",
+                "DISPLAY" : "localhost:10.0"
+            }
+        },
+        {
+            "name": "Find lr",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/main.py",
+            "args" : ["--cfg", "${workspaceFolder}/configs/config.yaml", 
+                    "--mode", "find_lr"],
             "env": {
                 "CUDA_LAUNCH_BLOCKING":"1",
                 "DISPLAY" : "localhost:10.0"
