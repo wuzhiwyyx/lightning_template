@@ -132,15 +132,19 @@ def find_best_lr(trainer, model, logger, train_dataloaders, val_dataloaders, sho
 
     fig = lr_finder.plot(suggest=True)
     fig.savefig('lr_curve.jpg')
+    fig.suptitle(f'Suggested lr: {lr_finder.suggestion():.4f}', fontsize=12)
     if show:
         fig.show()
         plt.pause(10)
     try:
         logger.info('Best learning rate found %4f' % lr_finder.suggestion())
+        print('Best learning rate found %4f' % lr_finder.suggestion())
     except TypeError:
         logger.info('Best learning rate not found.')
+        print('Best learning rate not found.')
     else:
         logger.info('Learning rate curve has been saved in lr_curve.jpg')
+        print('Learning rate curve has been saved in lr_curve.jpg')
     return lr_finder
 
 def load_config_and_update(cfg):
