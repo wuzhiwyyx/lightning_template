@@ -47,12 +47,12 @@ TRAIN:
             BATCH_SIZE: *TRAIN_BATCH
             SHUFFLE: false
             NUM_WORKERS: *TRAIN_NUM_WORKERS
-    CKPT_PATH: checkpoints/base/version_0/checkpoints/e4-s1500-loss9.9744.ckpt
+    CKPT_PATH: 
 
 TEST:
     MODEL:
         LEARNING_RATE: *LR
-    CKPT_PATH: checkpoints/base/version_0/checkpoints/e4-s1500-loss9.9744.ckpt
+    CKPT_PATH: 
     DATASET:
         MODE: val
         LOADER:
