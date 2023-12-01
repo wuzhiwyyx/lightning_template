@@ -17,13 +17,15 @@ from lightning.pytorch.callbacks import ModelCheckpoint
 
 
 class TxtLogger(Callback):
-    def __init__(self, name, batch_size, sync=True, summary_depth=3) -> None:
+    def __init__(self, name, batch_size, sync=True, summary_depth=3,
+                        on_bar=[]) -> None:
         super().__init__()
         self.name = name
         self.sync = sync
         self.bs = batch_size
         self.summary_depth = summary_depth
         self.txt_logger = logging.getLogger(name)
+        self.on_bar = ['loss'] + on_bar
 
     def setup(self, trainer: "pl.Trainer", pl_module: "pl.LightningModule", stage: str) -> None:
         self.pl_module = pl_module
@@ -71,55 +73,18 @@ class TxtLogger(Callback):
 
     def log_to_all(self, losses, prefix=''):
         msg = self.prefix_keys(losses, prefix)
-        self.pl_module.log_dict(msg, batch_size=self.bs, sync_dist=self.sync, prog_bar=True)
         self.log_to_txt(msg)
+
+        on_bars = self.prefix_keys(dict([k, v] for k, v in losses.items() if k in self.on_bar), prefix)
+        remains = self.prefix_keys(dict([k, v] for k, v in losses.items() if not k in self.on_bar), prefix)
+        
+        self.pl_module.log_dict(on_bars, batch_size=self.bs, sync_dist=self.sync, prog_bar=True)
+        self.pl_module.log_dict(remains, batch_size=self.bs, sync_dist=self.sync)
+
 
     def on_sanity_check_start(self, trainer: "pl.Trainer", pl_module: "pl.LightningModule") -> None:
         self.cur_step = 0
         self.nsteps = trainer.num_sanity_val_steps
-        
-    def on_validation_epoch_start(self, trainer: "pl.Trainer", pl_module: "pl.LightningModule") -> None:
-        self.cur_step = 0
-        if trainer.sanity_checking:
-            self.nsteps = trainer.num_sanity_val_steps
-        else:
-            self.nsteps = sum(trainer.num_val_batches)
-        
-    def on_train_epoch_start(self, trainer: "pl.Trainer", pl_module: "pl.LightningModule") -> None:
-        self.cur_step = 0
-        self.nsteps = trainer.num_training_batches
-        self.txt_logger.info(f'Train epoch {pl_module.current_epoch + 1} started.')
-        
-    def on_predict_epoch_start(self, trainer: "pl.Trainer", pl_module: "pl.LightningModule") -> None:
-        self.cur_step = 0
-        self.nsteps = sum(trainer.num_predict_batches)
-        
-    def on_test_epoch_start(self, trainer: "pl.Trainer", pl_module: "pl.LightningModule") -> None:
-        self.cur_step = 0
-        self.nsteps = sum(trainer.num_test_batches)
-        
-    def on_validation_batch_start(self, trainer: "pl.Trainer", pl_module: "pl.LightningModule", batch: Any, batch_idx: int, dataloader_idx: int = 0) -> None:
-        self.cur_step += 1
-    
-    def on_train_batch_start(self, trainer: "pl.Trainer", pl_module: "pl.LightningModule", batch: Any, batch_idx: int) -> None:
-        self.cur_step += 1
-
-    def on_predict_batch_start(self, trainer: "pl.Trainer", pl_module: "pl.LightningModule", batch: Any, batch_idx: int, dataloader_idx: int = 0) -> None:
-        self.cur_step += 1
-    
-    def on_test_batch_start(self, trainer: "pl.Trainer", pl_module: "pl.LightningModule", batch: Any, batch_idx: int, dataloader_idx: int = 0) -> None:
-        self.cur_step += 1
-
-    def on_train_batch_end(self, trainer: "pl.Trainer", pl_module: "pl.LightningModule", outputs: STEP_OUTPUT, batch: Any, batch_idx: int) -> None:
-        prefix = self.current_stage(trainer)
-        self.log_to_all(outputs, prefix)
-
-    def on_validation_batch_end(self, trainer: "pl.Trainer", pl_module: "pl.LightningModule", outputs: Optional[STEP_OUTPUT], batch: Any, batch_idx: int, dataloader_idx: int = 0) -> None:
-        prefix = self.current_stage(trainer)
-        self.log_to_all(outputs[0], prefix)
-
-    def on_train_epoch_end(self, trainer: "pl.Trainer", pl_module: "pl.LightningModule") -> None:
-        self.txt_logger.info(f'Train epoch {pl_module.current_epoch + 1} finished.')
     
     def on_fit_start(self, trainer: "pl.Trainer", pl_module: "pl.LightningModule") -> None:
         self.txt_logger.info('Fit started.')
@@ -130,6 +95,21 @@ class TxtLogger(Callback):
     def on_train_start(self, trainer: "pl.Trainer", pl_module: "pl.LightningModule") -> None:
         self.txt_logger.info('Training started.')
 
+    def on_train_epoch_start(self, trainer: "pl.Trainer", pl_module: "pl.LightningModule") -> None:
+        self.cur_step = 0
+        self.nsteps = trainer.num_training_batches
+        self.txt_logger.info(f'Train epoch {pl_module.current_epoch + 1} started.')
+      
+    def on_train_batch_start(self, trainer: "pl.Trainer", pl_module: "pl.LightningModule", batch: Any, batch_idx: int) -> None:
+        self.cur_step += 1
+    
+    def on_train_batch_end(self, trainer: "pl.Trainer", pl_module: "pl.LightningModule", outputs: STEP_OUTPUT, batch: Any, batch_idx: int) -> None:
+        prefix = self.current_stage(trainer)
+        self.log_to_all(outputs, prefix)
+
+    def on_train_epoch_end(self, trainer: "pl.Trainer", pl_module: "pl.LightningModule") -> None:
+        self.txt_logger.info(f'Train epoch {pl_module.current_epoch + 1} finished.')
+
     def on_train_end(self, trainer: "pl.Trainer", pl_module: "pl.LightningModule") -> None:
         self.txt_logger.info('Training finished.')
 
@@ -139,6 +119,23 @@ class TxtLogger(Callback):
         else:
             self.txt_logger.info('Validating started.')
 
+    def on_validation_epoch_start(self, trainer: "pl.Trainer", pl_module: "pl.LightningModule") -> None:
+        self.cur_step = 0
+        if trainer.sanity_checking:
+            self.nsteps = trainer.num_sanity_val_steps
+        else:
+            self.nsteps = sum(trainer.num_val_batches)
+        
+    def on_validation_batch_start(self, trainer: "pl.Trainer", pl_module: "pl.LightningModule", batch: Any, batch_idx: int, dataloader_idx: int = 0) -> None:
+        self.cur_step += 1    
+
+    def on_validation_batch_end(self, trainer: "pl.Trainer", pl_module: "pl.LightningModule", outputs: Optional[STEP_OUTPUT], batch: Any, batch_idx: int, dataloader_idx: int = 0) -> None:
+        prefix = self.current_stage(trainer)
+        self.log_to_all(outputs[0], prefix)
+
+    def on_validation_epoch_end(self, trainer: "pl.Trainer", pl_module: "pl.LightningModule") -> None:
+        self.log_to_all(pl_module.metrics if hasattr(pl_module, 'metrics') else {})
+
     def on_validation_end(self, trainer: "pl.Trainer", pl_module: "pl.LightningModule") -> None:
         if trainer.sanity_checking:
             self.txt_logger.info('Sanity checking finished.')
@@ -147,6 +144,27 @@ class TxtLogger(Callback):
 
     def on_test_start(self, trainer: "pl.Trainer", pl_module: "pl.LightningModule") -> None:
         self.txt_logger.info('Test started.')
+
+    def on_test_epoch_start(self, trainer: "pl.Trainer", pl_module: "pl.LightningModule") -> None:
+        self.cur_step = 0
+        self.nsteps = sum(trainer.num_test_batches)
+    
+    def on_test_batch_start(self, trainer: "pl.Trainer", pl_module: "pl.LightningModule", batch: Any, batch_idx: int, dataloader_idx: int = 0) -> None:
+        self.cur_step += 1
+
+    def on_test_batch_end(self, trainer: "pl.Trainer", pl_module: "pl.LightningModule", outputs: Optional[STEP_OUTPUT], batch: Any, batch_idx: int, dataloader_idx: int = 0) -> None:
+        prefix = self.current_stage(trainer)
+        self.log_to_all(outputs[0], prefix)
+    
+    def on_test_epoch_end(self, trainer: "pl.Trainer", pl_module: "pl.LightningModule") -> None:
+        self.log_to_all(pl_module.metrics if hasattr(pl_module, 'metrics') else {})
     
     def on_test_end(self, trainer: "pl.Trainer", pl_module: "pl.LightningModule") -> None:
-        self.txt_logger.info('Test finished.')
+        self.txt_logger.info('Test finished.')    
+
+    def on_predict_epoch_start(self, trainer: "pl.Trainer", pl_module: "pl.LightningModule") -> None:
+        self.cur_step = 0
+        self.nsteps = sum(trainer.num_predict_batches)
+
+    def on_predict_batch_start(self, trainer: "pl.Trainer", pl_module: "pl.LightningModule", batch: Any, batch_idx: int, dataloader_idx: int = 0) -> None:
+        self.cur_step += 1

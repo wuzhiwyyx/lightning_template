@@ -25,6 +25,7 @@ class PLModule(pl.LightningModule):
         self.model = self.build_model(**config)
         self.optim = optim
         self.sched = sched
+        self.metrics = {}
 
     def build_model(self, name, **kwargs):
         models = {
