@@ -65,7 +65,7 @@ class PLModule(pl.LightningModule):
 
     def test_step(self, batch, batch_idx, dataloader_idx=0):
         data, target = batch
-        outputs = self.forward(data, target)
+        outputs = self.forward(data)
         return outputs
 
     def configure_optimizers(self):
