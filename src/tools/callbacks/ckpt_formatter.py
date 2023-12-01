@@ -20,7 +20,7 @@ class CKPTFormatter(ModelCheckpoint):
     def __init__(self, monitor='val/loss', filename=None, save_top_k=5, save_last=True, 
                         verbose=True, auto_insert_metric_name=False, **kwargs):
         if not monitor is None and filename is None:
-            filename = f'e{{epoch}}-s{{step}}-loss{{{monitor}:.4f}}'
+            filename = f'e{{epoch}}-s{{step}}-{Path(monitor).stem}{{{monitor}:.4f}}'
         super().__init__(monitor=monitor, filename=filename, save_top_k=save_top_k, 
                             save_last=save_last, verbose=verbose, 
                             auto_insert_metric_name=auto_insert_metric_name,
