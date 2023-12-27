@@ -16,12 +16,17 @@ DATASET:
 
 MODEL:
     NAME: *MODEL_NAME
-    OPTIM: &OPTIM adam
-    SCHED: steplr
+    OPTIM: &OPTIM 
+        NAME: Adam
+        LR: 1.0e-3
+        WEIGHT_DECAY: 0.01
+    SCHED:
+        NAME: StepLR
+        STEP_SIZE: 4
+        GAMMA: 0.5
 
 TRAIN:
     MODEL:
-        LEARNING_RATE: &LR 1.0e-4
     TRAINER:
         MAX_EPOCHS: 10
         PRECISION: 32
@@ -51,8 +56,7 @@ TRAIN:
 
 TEST:
     MODEL:
-        LEARNING_RATE: *LR
-    CKPT_PATH: 
+    CKPT_PATH: checkpoints/base/version_0/checkpoints/e4-s1500-loss9.9744.ckpt
     DATASET:
         MODE: val
         LOADER:

@@ -6,22 +6,24 @@
  # @ Description: Base lightning model for all models.
  '''
 
+from copy import deepcopy
 from typing import Any, Optional
 
 import lightning.pytorch as pl
 from lightning.pytorch.callbacks import Callback
 from lightning.pytorch.utilities.types import STEP_OUTPUT
 from torch import optim
+
 from .mynet import MyNet
 from .tools import ConfigDict
 
 
 class PLModule(pl.LightningModule):
 
-    def __init__(self, learning_rate=1e-3, optim='adam', sched='steplr', **config):
+    def __init__(self, optim={'name': 'Adam', 'lr': 1e-3, 'weight_decay': 0.01}, 
+                    sched={'name': 'StepLR', 'step_size': 4, 'gamma': 0.5}, **config):
         super().__init__()
         self.save_hyperparameters()
-        self.learning_rate = learning_rate
         self.model = self.build_model(**config)
         self.optim = optim
         self.sched = sched
@@ -69,20 +71,11 @@ class PLModule(pl.LightningModule):
         return outputs
 
     def configure_optimizers(self):
-        optimizers = {
-            'sgd': optim.SGD(self.parameters(), lr=self.learning_rate, momentum=0.9),
-            'adam': optim.Adam(self.parameters(), lr=self.learning_rate, weight_decay=0),
-            'nadam': optim.NAdam(self.parameters(), lr=self.learning_rate, weight_decay=0.01),
-            'adadelta': optim.Adadelta(self.parameters(), lr=self.learning_rate),
-            'rmsprop': optim.RMSprop(self.parameters(), lr=self.learning_rate)
-        }
-        optimizer = optimizers[self.optim]
+        opt = deepcopy(self.optim)
+        optimizer = eval(f'optim.{opt.pop("name")}')(self.parameters(), **opt)
 
-        schedulers = {
-            'steplr': optim.lr_scheduler.StepLR(optimizer, step_size = 4, gamma = 0.5),
-            'cos': optim.lr_scheduler.CosineAnnealingWarmRestarts(optimizer, T_0=5)
-        }
-        scheduler = schedulers[self.sched]
+        sch = deepcopy(self.sched)
+        scheduler = eval(f'optim.lr_scheduler.{sch.pop("name")}')(optimizer, **sch)
         
         lr_dict = {
             'optimizer': optimizer,
