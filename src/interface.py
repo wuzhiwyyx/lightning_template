@@ -30,10 +30,7 @@ class PLModule(pl.LightningModule):
         self.metrics = {}
 
     def build_model(self, name, **kwargs):
-        models = {
-            'mynet' : MyNet
-        }
-        model = models[name.lower()](**ConfigDict(kwargs).to_dict())
+        model = eval(name)(**ConfigDict(kwargs).to_dict())
         return model
 
     def sum_losses(self, losses):
