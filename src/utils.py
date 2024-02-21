@@ -6,6 +6,7 @@
  # @ Description: Collection of some useful functions for running the whole project.
  '''
 
+import importlib
 import pprint
 
 from lightning.pytorch import Trainer
@@ -14,9 +15,7 @@ from lightning.pytorch.loggers import TensorBoardLogger
 from lightning.pytorch.tuner import Tuner
 
 from .datasets import *
-from .interface import PLModule
 from .tools import *
-from .tools.callbacks import *
 
 
 class Runner():
@@ -69,13 +68,19 @@ class Runner():
     @property
     def cfg(self):
         return eval(f'self.config.{self.mode if self.mode != "val" else "test"}')
-
+    
+    @property
+    def __PKG__(self):
+        PKG = self.config.__PKG__
+        return PKG if PKG else 'interface'
+    
     def find_lr(self, model, train_dataloaders, val_dataloaders, **kwargs):
         if not self.trainer is None:
             find_best_lr(self.trainer, model, self.logger, train_dataloaders, val_dataloaders)
 
     def build_plmodule(self):
         self.logger.info('Building model.')
+        PLModule = importlib.import_module(f'.{self.__PKG__}', package='src').PLModule
         return PLModule(**self.cfg.model)
 
     def build_dataloader(self):
