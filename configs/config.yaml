@@ -1,74 +1,74 @@
-MODEL_NAME: &MODEL_NAME MyNet
-DATASET_NAME: &DATASET_NAME minist
+model_name: &MODEL_NAME MyNet
+dataset_name: &DATASET_NAME minist
 
 # experiment name or current model name
-EXPER: &EXPER 'base'
+exper: &EXPER 'base'
 
-DATASET:
-    NAME: *DATASET_NAME
-    ROOT: data
-    MODE: train
-    DOWNLOAD: true
-    LOADER:
-        BATCH_SIZE: &TRAIN_BATCH 200
-        SHUFFLE: true
-        NUM_WORKERS: &TRAIN_NUM_WORKERS 0
+dataset:
+    name: *DATASET_NAME
+    root: data
+    mode: train
+    download: true
+    loader:
+        batch_size: &TRAIN_BATCH 200
+        shuffle: true
+        num_workers: &TRAIN_NUM_WORKERS 0
 
-MODEL:
-    NAME: *MODEL_NAME
-    OPTIM: &OPTIM 
-        NAME: Adam
-        LR: 1.0e-3
-        WEIGHT_DECAY: 0.01
-    SCHED:
-        NAME: StepLR
-        STEP_SIZE: 4
-        GAMMA: 0.5
+model:
+    name: *MODEL_NAME
+    optim: &OPTIM 
+        name: Adam
+        lr: 1.0e-3
+        weight_decay: 0.01
+    sched:
+        name: StepLR
+        step_size: 4
+        gamma: 0.5
 
-TRAIN:
-    MODEL:
-    TRAINER:
-        MAX_EPOCHS: 10
-        PRECISION: 32
-        DEVICES: [0]
-        ACCELERATOR: gpu
-        STRATEGY: ddp # ddp_find_unused_parameters_false
-        SYNC_BATCHNORM: false
-        RELOAD_DATALOADERS_EVERY_N_EPOCHS: 10
-        LOG_EVERY_N_STEPS: 15
-        CALLBACKS:
+train:
+    model:
+    trainer:
+        max_epochs: 10
+        precision: 32
+        devices: [0]
+        accelerator: gpu
+        strategy: ddp # ddp_find_unused_parameters_false
+        sync_batchnorm: false
+        reload_dataloaders_every_n_epochs: 10
+        log_every_n_steps: 15
+        callbacks:
             TxtLogger:
-                NAME: *MODEL_NAME
-                BATCH_SIZE: *TRAIN_BATCH
+                name: *MODEL_NAME
+                batch_size: *TRAIN_BATCH
             CKPTFormatter:
-    TRAINSET:
-        LOADER:
-            BATCH_SIZE: *TRAIN_BATCH
-            SHUFFLE: true
-            NUM_WORKERS: *TRAIN_NUM_WORKERS
-    VALSET:
-        MODE: val
-        LOADER:
-            BATCH_SIZE: *TRAIN_BATCH
-            SHUFFLE: false
-            NUM_WORKERS: *TRAIN_NUM_WORKERS
-    CKPT_PATH: 
+    trainset:
+        loader:
+            batch_size: *TRAIN_BATCH
+            shuffle: true
+            num_workers: *TRAIN_NUM_WORKERS
+    valset:
+        mode: val
+        loader:
+            batch_size: *TRAIN_BATCH
+            shuffle: false
+            num_workers: *TRAIN_NUM_WORKERS
+    ckpt_path: 
 
-TEST:
-    MODEL:
-    CKPT_PATH: checkpoints/base/version_0/checkpoints/e4-s1500-loss9.9744.ckpt
-    DATASET:
-        MODE: val
-        LOADER:
-            BATCH_SIZE: &VAL_BATCH 1
-            SHUFFLE: false
-            NUM_WORKERS: 0
-    TRAINER:
-        MAX_EPOCHS: 1
-        DEVICES: [0]
-        ACCELERATOR: gpu
-        CALLBACKS:
+test:
+    model:
+    ckpt_path: checkpoints/base/version_0/checkpoints/e4-s1500-loss9.9744.ckpt
+    dataset:
+        mode: val
+        loader:
+            batch_size: &VAL_BATCH 1
+            shuffle: false
+            num_workers: 0
+    trainer:
+        max_epochs: 1
+        devices: [0]
+        accelerator: gpu
+        callbacks:
             TxtLogger:
-                NAME: *MODEL_NAME
-                BATCH_SIZE: *VAL_BATCH
+                name: *MODEL_NAME
+                batch_size: *VAL_BATCH
 

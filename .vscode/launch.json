@@ -6,7 +6,7 @@
     "configurations": [
         {
             "name": "Python: Current File",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
@@ -14,7 +14,7 @@
         },
         {
             "name": "Debug",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/debug.py",
             "args" : ["--cfg", "${workspaceFolder}/configs/config.yaml"],
@@ -24,7 +24,7 @@
         },
         {
             "name": "Train",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/main.py",
             "args" : ["--cfg", "${workspaceFolder}/configs/config.yaml"],
@@ -35,7 +35,7 @@
         },
         {
             "name": "Val",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/main.py",
             "args" : ["--cfg", "${workspaceFolder}/configs/config.yaml", 
@@ -46,7 +46,7 @@
         },
         {
             "name": "Test",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/main.py",
             "args" : ["--cfg", "${workspaceFolder}/configs/config.yaml", 
@@ -58,7 +58,7 @@
         },
         {
             "name": "Find lr",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/main.py",
             "args" : ["--cfg", "${workspaceFolder}/configs/config.yaml", 

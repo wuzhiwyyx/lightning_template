@@ -16,14 +16,17 @@ class ConfigDict(dict):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for k, v in list(self.items()):
-            if not k.islower() and k.isupper():
-                self.pop(k)
-                self[k.lower()] = v
             if isinstance(v, dict) and not isinstance(v, ConfigDict):
-                if not k.islower() and k.isupper():
-                    self[k.lower()] = ConfigDict(v)
-                else:
-                    self[k] = ConfigDict(v)
+                self[k] = ConfigDict(v)
+        # for k, v in list(self.items()):
+        #     if not k.islower() and k.isupper():
+        #         self.pop(k)
+        #         self[k.lower()] = v
+        #     if isinstance(v, dict) and not isinstance(v, ConfigDict):
+        #         if not k.islower() and k.isupper():
+        #             self[k.lower()] = ConfigDict(v)
+        #         else:
+        #             self[k] = ConfigDict(v)
 
     def __getattr__(self, name):
         return self.get(name.lower())
