@@ -55,13 +55,15 @@ pip install -r requirements.txt
     class MyNet(nn.Module):
         ...
     ```
-    > If you implement your own lightning interface, namley define a `pl.LightningModule` in `my_model/interface.py`. You have to add `__PKG__` in config file to specify the package name to make it work.
+    If you implement your own lightning interface, namley define a `pl.LightningModule` in `my_model/interface.py`. You have to add `__PKG__` in config file to specify the package name to make it work.
+
     ```yaml
     # for example
     __PKG__: my_model
     model_name: &MODEL_NAME MyNet
     dataset_name: &DATASET_NAME MINISTDataset
     ```
+    > If no `__PKG__` is defined, the default interface in `src/interface.py` will be used.
 
 
 ### Training
