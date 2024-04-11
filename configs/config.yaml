@@ -13,6 +13,7 @@ dataset:
         batch_size: &TRAIN_BATCH 200
         shuffle: true
         num_workers: &TRAIN_NUM_WORKERS 0
+        collate_fn: minist_collate
 
 model:
     name: *MODEL_NAME
@@ -27,7 +28,6 @@ model:
 
 train:
     model:
-    kfold: 7
     trainer:
         max_epochs: 1
         precision: 32
@@ -48,11 +48,18 @@ train:
             shuffle: true
             num_workers: *TRAIN_NUM_WORKERS
     valset:
-        mode: val
-        loader:
-            batch_size: *TRAIN_BATCH
-            shuffle: false
-            num_workers: *TRAIN_NUM_WORKERS
+        -
+            mode: val
+            loader:
+                batch_size: *TRAIN_BATCH
+                shuffle: false
+                num_workers: *TRAIN_NUM_WORKERS
+        -
+            mode: val
+            loader:
+                batch_size: *TRAIN_BATCH
+                shuffle: false
+                num_workers: *TRAIN_NUM_WORKERS
     ckpt_path: 
 
 test:

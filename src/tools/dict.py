@@ -14,8 +14,11 @@ def deep_update(raw, new):
     if new is None:
         return raw
     foo = deepcopy(raw)
-    update_keys(foo, new)
-    insert_keys(foo, new)
+    if isinstance(new, list):
+        foo = [deep_update(foo, n) for n in new]
+    else:
+        update_keys(foo, new)
+        insert_keys(foo, new)
     return foo
 
 def update_keys(raw, new):

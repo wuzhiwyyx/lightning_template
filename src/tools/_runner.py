@@ -60,6 +60,7 @@ class _Runner():
             except Exception as e:
                 console = logging.getLogger("lightning.pytorch.core")
                 console.warning(f'Failed to import {pkg.name} package: {e}')
+                raise Exception(f'Failed to import {pkg.name} package: {e}')
     
     def get_logger(self):
         return self.logger

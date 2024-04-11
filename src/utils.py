@@ -7,17 +7,11 @@
  '''
 
 import importlib
-import pprint
+from copy import deepcopy
 
 from lightning.pytorch import Trainer
-from lightning.pytorch.loggers import TensorBoardLogger
-from lightning.pytorch.tuner import Tuner
 
-# from .datasets import *
-# from .tools import *
-from .tools import _Runner, PLData, KFoldLoop
-
-from copy import deepcopy
+from .tools import PLData, _Runner
 
 
 class Runner(_Runner):
@@ -30,8 +24,7 @@ class Runner(_Runner):
     def build_datamodule(self):
         self.logger.info(f'Building {self.mode.capitalize()} dataset.')
         if self.mode == 'train':
-            dm = PLData(train=self.cfg.trainset, val=self.cfg.valset, 
-                            kfolds=self.cfg.kfold if hasattr(self.cfg, 'kfold') else None)
+            dm = PLData(train=self.cfg.trainset, val=self.cfg.valset)
         elif self.mode == 'val':
             dm = PLData(val=self.cfg.dataset)
         else:
@@ -51,10 +44,6 @@ class Runner(_Runner):
             cfg['enable_checkpointing'] = False
             cfg['logger'] = False
             trainer = Trainer(**cfg)
-        if hasattr(self.cfg, 'kfold') and not self.cfg.kfold is None:
-            default_ = trainer.fit_loop
-            trainer.fit_loop = KFoldLoop(self.cfg.kfold, trainer, default_.min_epochs, default_.max_epochs)
-            # trainer.fit_loop.connect(default_loop)
         return trainer
 
     def run(self):

@@ -8,6 +8,7 @@
 
 import torch
 from torch.utils import data
+from torch.utils.data.dataloader import default_collate
 from torchvision import datasets, transforms
 
 from src import Registry
@@ -31,4 +32,6 @@ class MINISTDataset(data.Dataset):
         return self.data[index]
     
     
-
+@Registry.register_collate()
+def minist_collate(batch):
+    return default_collate(batch)

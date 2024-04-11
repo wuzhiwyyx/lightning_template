@@ -14,7 +14,54 @@ pip install torch==1.12.1+cu113 torchvision==0.13.1+cu113 --extra-index-url http
 pip install -r requirements.txt
 ```
 
+## ChangeLog
+<details>
+  <summary>Click to see change logs</summary>
+  
+  #### 2024.04.11 update
+  - [x] Multiple train/validation/test datasets support
+  - [x] Introducing Register mechanism to further clean codes
+  - [ ] kfold
+</details>
+
 ## Usage
+#### 1. Add new dataset
+1. Create a new dataset class in `datasets` folder, for example, namely `mydatset.py`
+2. Import `Register` class in the beginning of `mydataset.py` and register the dataset class using `@Registry.register_dataset()` decorator
+    ```python
+    # other import statement ...
+    from src import Registry
+    # other import statement ...
+
+    # other codes ...
+
+    @Registry.register_dataset()
+    class MINISTDataset(data.Dataset):
+        ...
+    ```
+    > You can also register collate_function using `@Registry.register_collate()`, examples can be found in [dataset_example](src/datasets/minist_dataset.py)
+
+#### 2. Add new model
+1. Create a new package in `src` folder, for example, namely `my_model`, and create a new model class in `my_model` folder, namely `my_model.py`
+2. Import `Register` class in the beginning of `my_model.py` and register the model class using `@Registry.register_module()` decorator
+    ```python
+    # other import statement ...
+    from src import Registry
+    # other import statement ...
+
+    # other codes ...
+
+    @Registry.register_module()
+    class MyNet(nn.Module):
+        ...
+    ```
+    > If you implement your own lightning interface, namley define a `pl.LightningModule` in `my_model/interface.py`. You have to add `__PKG__` in config file to specify the package name to make it work.
+    ```yaml
+    # for example
+    __PKG__: my_model
+    model_name: &MODEL_NAME MyNet
+    dataset_name: &DATASET_NAME MINISTDataset
+    ```
 
 
 ### Training

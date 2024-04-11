@@ -30,6 +30,10 @@ class Registry():
         return Registry.decorator()
     
     @classmethod
+    def register_collate(cls):
+        return Registry.decorator()
+    
+    @classmethod
     def register_callback(cls):
         return Registry.decorator()
     
@@ -42,3 +46,10 @@ class Registry():
     def get_class(cls, _cls_name: str):
         assert _cls_name in Registry._registry, f'Class not found: {_cls_name}'
         return Registry._registry[_cls_name]
+    
+    @classmethod
+    def get_fn(cls, _fn_name: str):
+        if _fn_name is None:
+            return None
+        assert _fn_name in Registry._registry, f'Function not found: {_fn_name}'
+        return Registry._registry[_fn_name]
