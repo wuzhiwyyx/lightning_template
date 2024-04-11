@@ -9,11 +9,13 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from src import Registry
 
+@Registry.register_module()
 class MyNet(nn.Module):
     """Example model definition. Performing classification on MINIST."""
 
-    def __init__(self):
+    def __init__(self, a=1):
         super().__init__()
         self.conv1 = nn.Conv2d(1, 32, 3, 1)
         self.conv2 = nn.Conv2d(32, 64, 3, 1)

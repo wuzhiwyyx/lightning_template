@@ -6,16 +6,18 @@
  # @ Description: CKPTFormatter implementation to customize tensorboard log format.
  '''
 
+import logging
+from pathlib import Path
 from typing import Any, Optional
 
 import lightning.pytorch as pl
-from lightning.pytorch.callbacks import Callback
+from lightning.pytorch.callbacks import Callback, ModelCheckpoint
 from lightning.pytorch.utilities.types import STEP_OUTPUT
-import logging
-from pathlib import Path
-from lightning.pytorch.callbacks import ModelCheckpoint
+
+from src import Registry
 
 
+@Registry.register_callback()
 class CKPTFormatter(ModelCheckpoint):
     def __init__(self, monitor='val/loss', filename=None, save_top_k=5, save_last=True, 
                         verbose=True, auto_insert_metric_name=False, **kwargs):

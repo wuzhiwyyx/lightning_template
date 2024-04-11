@@ -6,16 +6,18 @@
  # @ Description: TxtLogger implementation to log infos into txt file.
  '''
 
+import logging
+from pathlib import Path
 from typing import Any, Optional
 
 import lightning.pytorch as pl
-from lightning.pytorch.callbacks import Callback
+from lightning.pytorch.callbacks import Callback, ModelCheckpoint
 from lightning.pytorch.utilities.types import STEP_OUTPUT
-import logging
-from pathlib import Path
-from lightning.pytorch.callbacks import ModelCheckpoint
+
+from src import Registry
 
 
+@Registry.register_callback()
 class TxtLogger(Callback):
     def __init__(self, name, batch_size, sync=True, summary_depth=3,
                         on_bar=[]) -> None:

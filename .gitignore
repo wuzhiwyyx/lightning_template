@@ -138,3 +138,5 @@ log/
 *.ckpt
 lr_curve.jpg
 !requirements.txt
+
+root

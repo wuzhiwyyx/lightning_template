@@ -14,8 +14,8 @@ from lightning.pytorch.callbacks import Callback
 from lightning.pytorch.utilities.types import STEP_OUTPUT
 from torch import optim
 
-from .mynet import MyNet
-from .tools import ConfigDict
+# from .mynet import MyNet
+from .tools import Registry
 
 
 class PLModule(pl.LightningModule):
@@ -30,7 +30,7 @@ class PLModule(pl.LightningModule):
         self.metrics = {}
 
     def build_model(self, name, **kwargs):
-        model = eval(name)(**ConfigDict(kwargs).to_dict())
+        model = Registry.instantiate(name, **kwargs)
         return model
 
     def sum_losses(self, losses):
@@ -82,3 +82,41 @@ class PLModule(pl.LightningModule):
             }
         }
         return lr_dict
+
+
+# class PLData(pl.LightningDataModule):
+#     def __init__(self, train=None, val=None, test=None, predict=None) -> None:
+#         super().__init__()
+#         self.train_cfg = train
+#         self.val_cfg = val
+#         self.test_cfg = test
+#         self.predict_cfg = predict
+
+#     def build_dataset_and_loader(self, config):
+#         CLASS = Registry.get_class(config.pop('name'))
+#         dataset, loader = CLASS.build_dataset(**config)
+#         return dataset, loader
+        
+#     def train_dataloader(self) -> Any:
+#         if not self.train_cfg is None:
+#             cfg = deepcopy(self.train_cfg)
+#             dataset, loader = self.build_dataset_and_loader(cfg)
+#             return loader
+        
+#     def val_dataloader(self) -> Any:
+#         if not self.val_cfg is None:
+#             cfg = deepcopy(self.val_cfg)
+#             dataset, loader = self.build_dataset_and_loader(cfg)
+#             return loader
+        
+#     def test_dataloader(self) -> Any:
+#         if not self.test_cfg is None:
+#             cfg = deepcopy(self.test_cfg)
+#             dataset, loader = self.build_dataset_and_loader(cfg)
+#             return loader
+        
+#     def predict_dataloader(self) -> Any:
+#         if not self.predict_cfg is None:
+#             cfg = deepcopy(self.predict_cfg)
+#             dataset, loader = self.build_dataset_and_loader(cfg)
+#             return loader

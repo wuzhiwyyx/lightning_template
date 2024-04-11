@@ -1,5 +1,5 @@
 model_name: &MODEL_NAME MyNet
-dataset_name: &DATASET_NAME minist
+dataset_name: &DATASET_NAME MINISTDataset
 
 # experiment name or current model name
 exper: &EXPER 'base'
@@ -8,7 +8,7 @@ dataset:
     name: *DATASET_NAME
     root: data
     mode: train
-    download: true
+    download: false
     loader:
         batch_size: &TRAIN_BATCH 200
         shuffle: true
@@ -27,8 +27,9 @@ model:
 
 train:
     model:
+    kfold: 7
     trainer:
-        max_epochs: 10
+        max_epochs: 1
         precision: 32
         devices: [0]
         accelerator: gpu
