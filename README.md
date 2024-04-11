@@ -21,6 +21,7 @@ pip install -r requirements.txt
   #### 2024.04.11 update
   - [x] Multiple train/validation/test datasets support
   - [x] Introducing Register mechanism to further clean codes
+  - [x] Fix the bug where `reload_dataloaders_every_n_epochs` fails.
   - [ ] kfold
 </details>
 
@@ -75,13 +76,13 @@ python main.py --cfg configs/config.yaml
 ### Validation
 
 ```shell
-python main.py --cfg configs/config.yaml --mode val --vis --save_pred
+python main.py --cfg configs/config.yaml --mode val
 ```
 
 ### Test
 
 ```shell
-python main.py --cfg configs/config.yaml --mode test --vis --save_pred
+python main.py --cfg configs/config.yaml --mode test
 ```
 
 ## Citation
