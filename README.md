@@ -75,7 +75,7 @@ For example, if you want to create a `pl.LightningModule` for `my_model`.
         pass
         ...
     ```
-    > **Note**: the interface class name `PLModule` is fixed. You can't change it.  
+    > **Note**: The interface class name `PLModule` is fixed. You are not supposed to change that.  
 2. Add `__PKG__` in config file to specify the package name to make it work.
 
     ```yaml
@@ -84,7 +84,7 @@ For example, if you want to create a `pl.LightningModule` for `my_model`.
     model_name: &MODEL_NAME MyNet
     dataset_name: &DATASET_NAME MINISTDataset
     ```
-    > If no `__PKG__` is defined, the default interface in `src/interface.py` will be used.
+    > **Note**: If no `__PKG__` is defined, the default interface in `src/interface.py` will be used.
 
 ### Training
 
