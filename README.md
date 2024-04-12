@@ -108,19 +108,23 @@ For example, if you want to create a `pl.LightningModule` for `my_model`.
     > **Note**: If no `__PKG__` is defined, the default interface in `src/interface.py` will be used.
 
 ## Run
-1. **Training**
+- **Training**
     ```shell
     python main.py --cfg configs/config.yaml
     ```
 
-2. **Validation**
+- **Validation**
     ```shell
     python main.py --cfg configs/config.yaml --mode val
     ```
 
-3. **Test**
+- **Test**
     ```shell
     python main.py --cfg configs/config.yaml --mode test
+    ```
+- **Find best learning rate**
+    ```shell
+    python main.py --cfg configs/config.yaml --mode find_lr
     ```
 
 ## Citation
