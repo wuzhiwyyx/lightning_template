@@ -5,7 +5,7 @@ This responsitory demonstrates the file structure of pytorch-lightning based dee
 
 Classification model is composed of two convolution layers and two fully connected layers.
 
-![pytorch-lightning](assets/images/lightning.png)
+![pytorch-lightning](assets/images/lightning_lightning.png)
 
 ## Install
 
@@ -27,8 +27,8 @@ pip install -r requirements.txt
 
 ## Usage
 #### 1. Add new dataset
-1. Create a new dataset class in `src/datasets` folder, for example, namely `mydatset.py`
-2. Import `Register` class in the beginning of `mydataset.py` and register the dataset class using `@Registry.register_dataset()` decorator
+1. Create a new dataset class in `src/datasets` folder, for example, namely `mydatset.py`.
+2. Import `Register` class in the beginning of `mydataset.py` and register the dataset class using `@Registry.register_dataset()` decorator.
     ```python
     # other import statement ...
     from src import Registry
@@ -40,15 +40,15 @@ pip install -r requirements.txt
     class MINISTDataset(data.Dataset):
         ...
     ```
-    > You can also register collate_function using `@Registry.register_collate()`, examples can be found in [dataset_example](src/datasets/minist_dataset.py)
-3. Add import statement in `src/datasets/__init__.py`
+    > You can also register collate_function using `@Registry.register_collate()`, examples can be found in [dataset_example](src/datasets/minist_dataset.py).
+3. Add import statement in `src/datasets/__init__.py`.
     ```python
     from .mydataset import MINISTDataset
     ```
 
 #### 2. Add new model
-1. Create a new package in `src` folder, for example, namely `my_model`, and create a new model class in `my_model` folder, namely `my_model.py`
-2. Import `Register` class in the beginning of `my_model.py` and register the model class using `@Registry.register_module()` decorator
+1. Create a new package in `src` folder, for example, namely `my_model`, and create a new model class in `my_model` folder, namely `my_model.py`.
+2. Import `Register` class in the beginning of `my_model.py` and register the model class using `@Registry.register_module()` decorator.
     ```python
     # other import statement ...
     from src import Registry
@@ -60,12 +60,33 @@ pip install -r requirements.txt
     class MyNet(nn.Module):
         ...
     ```
-3. Add import statement in `src/my_model/__init__.py`
+3. Add import statement in `src/my_model/__init__.py`.
     ```python
     from .my_model import MyNet
     ```
 
-#### 3. Add new interface
+#### 3. Add new callbacks
+If you want to add specific operations at each timepoint, for example `on_train_batch_end`, `on_validation_batch_end`. You are supposed to add new callbacks inheriting `lightning.pytorch.callbacks.Callback`. Following steps will make your customized callback work.
+1. Create a new callback class in `src/callbacks` folder, for example, namely `my_callbacks.py`.
+2. Import `Register` class in the beginning of `my_callbacks.py` and register the callback class using `@Registry.register_callback()` decorator.
+    ```python
+    # other import statement ...
+    from src import Registry
+    # other import statement ...
+
+    # other codes ...
+
+    @Registry.register_callback()
+    class MyCallback(ModelCheckpoint):
+        pass
+        ...
+    ```
+3. Add import statement in `src/callbacks/__init__.py`.
+    ```python
+    from .my_callbacks import MyCallback
+    ```
+
+#### 4. Add new interface
 Generally, you don't need to add new interface. The default interface in `src/interface.py` is enough for most cases. However, if you want to implement your own interface, you can follow the steps below.
 
 For example, if you want to create a `pl.LightningModule` for `my_model`. 
@@ -86,23 +107,21 @@ For example, if you want to create a `pl.LightningModule` for `my_model`.
     ```
     > **Note**: If no `__PKG__` is defined, the default interface in `src/interface.py` will be used.
 
-### Training
+## Run
+1. **Training**
+    ```shell
+    python main.py --cfg configs/config.yaml
+    ```
 
-```shell
-python main.py --cfg configs/config.yaml
-```
+2. **Validation**
+    ```shell
+    python main.py --cfg configs/config.yaml --mode val
+    ```
 
-### Validation
-
-```shell
-python main.py --cfg configs/config.yaml --mode val
-```
-
-### Test
-
-```shell
-python main.py --cfg configs/config.yaml --mode test
-```
+3. **Test**
+    ```shell
+    python main.py --cfg configs/config.yaml --mode test
+    ```
 
 ## Citation
 
