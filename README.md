@@ -27,7 +27,7 @@ pip install -r requirements.txt
 
 ## Usage
 #### 1. Add new dataset
-1. Create a new dataset class in `datasets` folder, for example, namely `mydatset.py`
+1. Create a new dataset class in `src/datasets` folder, for example, namely `mydatset.py`
 2. Import `Register` class in the beginning of `mydataset.py` and register the dataset class using `@Registry.register_dataset()` decorator
     ```python
     # other import statement ...
@@ -41,6 +41,10 @@ pip install -r requirements.txt
         ...
     ```
     > You can also register collate_function using `@Registry.register_collate()`, examples can be found in [dataset_example](src/datasets/minist_dataset.py)
+3. Add import statement in `src/datasets/__init__.py`
+    ```python
+    from .mydataset import MINISTDataset
+    ```
 
 #### 2. Add new model
 1. Create a new package in `src` folder, for example, namely `my_model`, and create a new model class in `my_model` folder, namely `my_model.py`
@@ -56,7 +60,23 @@ pip install -r requirements.txt
     class MyNet(nn.Module):
         ...
     ```
-    If you implement your own lightning interface, namley define a `pl.LightningModule` in `my_model/interface.py`. You have to add `__PKG__` in config file to specify the package name to make it work.
+3. Add import statement in `src/my_model/__init__.py`
+    ```python
+    from .my_model import MyNet
+    ```
+
+#### 3. Add new interface
+Generally, you don't need to add new interface. The default interface in `src/interface.py` is enough for most cases. However, if you want to implement your own interface, you can follow the steps below.
+
+For example, if you want to create a `pl.LightningModule` for `my_model`. 
+1. Define a `pl.LightningModule` in `my_model/interface.py`.
+    ```python
+    class PLModule(pl.LightningModule):
+        pass
+        ...
+    ```
+    > **Note**: the interface class name `PLModule` is fixed. You can't change it.  
+2. Add `__PKG__` in config file to specify the package name to make it work.
 
     ```yaml
     # for example
@@ -65,7 +85,6 @@ pip install -r requirements.txt
     dataset_name: &DATASET_NAME MINISTDataset
     ```
     > If no `__PKG__` is defined, the default interface in `src/interface.py` will be used.
-
 
 ### Training
 
